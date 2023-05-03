@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
+const creatures = require("../constants/creatures");
+const relics = require("../constants/relics");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -9,12 +11,12 @@ module.exports = {
 
   async execute(interaction, client) {
     try {
-      const enemiesPath = path.relative(process.cwd(), "docs/enemies.txt");
+      const gamesPath = path.relative(process.cwd(), "docs/games.txt");
       const userId = interaction.member.user.id;
       let re;
       let newLine;
 
-      fs.readFile(enemiesPath, "utf8", function (err, data) {
+      fs.readFile(gamesPath, "utf8", function (err, data) {
         re = new RegExp("^.*" + userId + ".*$", "gm");
 
         if (re.test(data)) {
@@ -25,11 +27,25 @@ module.exports = {
           return;
         }
 
-        newLine = userId + "," + 100 + "\r\n";
+        newLine =
+          userId +
+          "," +
+          0 +
+          "," +
+          Math.floor(Math.random() * creatures.length) +
+          "," +
+          Math.floor(Math.random() * relics.length) +
+          "," +
+          0 +
+          "," +
+          0 +
+          "," +
+          0 +
+          "\r\n";
 
         if (err) return console.log(err);
 
-        fs.appendFile(enemiesPath, newLine, "utf8", function (err) {
+        fs.appendFile(gamesPath, newLine, "utf8", function (err) {
           if (err) return console.log(err);
         });
 

@@ -17,12 +17,11 @@ const commandFiles = fs
   .filter((file) => file.endsWith(".js"));
 let filePath;
 
+// initialize client commands as new collection
 client.commands = new Collection();
 
 // listen to the event that signals bot is ready to start working
-client.on("ready", () => {
-  console.log(`logged in as ${client.user.tag}`);
-});
+client.on("ready", () => console.log(`logged in as ${client.user.tag}`));
 
 // command handling
 for (const file of commandFiles) {

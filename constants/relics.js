@@ -9,6 +9,9 @@ const relics = [
     speedMod: 5,
     defenseMod: 0,
     criticalMod: 0,
+    mpMod: 0,
+    mpRegenMod: 0,
+    specialMod: 0,
     price: 0,
   },
   {
@@ -21,6 +24,9 @@ const relics = [
     speedMod: 0,
     defenseMod: 0,
     criticalMod: 0,
+    mpMod: 0,
+    mpRegenMod: 0,
+    specialMod: 0,
     price: 150,
   },
   {
@@ -33,6 +39,9 @@ const relics = [
     speedMod: 0,
     defenseMod: 0,
     criticalMod: 0,
+    mpMod: 0,
+    mpRegenMod: 25,
+    specialMod: 0,
     price: 300,
   },
 ];

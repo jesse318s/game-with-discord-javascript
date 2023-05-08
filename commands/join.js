@@ -4,6 +4,23 @@ const fs = require("fs");
 const creatures = require("../constants/creatures");
 const relics = require("../constants/relics");
 
+// verfies if user has joined the game
+const verifyGameData = (gamesPath, re) => {
+  return new Promise((resolve, reject) => {
+    try {
+      fs.readFile(gamesPath, "utf8", (err, data) => {
+        if (err) reject(err);
+
+        if (re.test(data)) resolve(true);
+
+        resolve(false);
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("join")
@@ -16,38 +33,36 @@ module.exports = {
       let re;
       let newLine;
 
-      fs.readFile(gamesPath, "utf8", function (err, data) {
-        re = new RegExp("^.*" + userId + ".*$", "gm");
+      re = new RegExp("^.*" + userId + ".*$", "gm");
 
-        if (re.test(data)) {
-          interaction.reply({
-            content: "You've already joined the game.",
-            ephemeral: true,
-          });
-          return;
-        }
-
-        newLine =
-          userId +
-          "," +
-          0 +
-          "," +
-          Math.floor(Math.random() * creatures.length) +
-          "," +
-          Math.floor(Math.random() * relics.length) +
-          "," +
-          0 +
-          "," +
-          0 +
-          "," +
-          0 +
-          "\r\n";
-
-        if (err) return console.log(err);
-
-        fs.appendFile(gamesPath, newLine, "utf8", function (err) {
-          if (err) return console.log(err);
+      if (await verifyGameData(gamesPath, re)) {
+        interaction.reply({
+          content: "You've already joined the game.",
+          ephemeral: true,
         });
+        return;
+      }
+
+      newLine =
+        userId +
+        "," +
+        0 +
+        "," +
+        Math.floor(Math.random() * creatures.length) +
+        "," +
+        Math.floor(Math.random() * relics.length) +
+        "," +
+        0 +
+        "," +
+        0 +
+        "," +
+        0 +
+        "," +
+        0 +
+        "\r\n";
+
+      fs.appendFile(gamesPath, newLine, "utf8", (err) => {
+        if (err) return console.error(err);
 
         interaction.reply({
           content: "You joined the game!",

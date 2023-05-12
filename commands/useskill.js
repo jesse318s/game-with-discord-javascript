@@ -17,11 +17,11 @@ let counterRef;
 let mpRef;
 
 // loads game info
-const loadGameData = (gamesPath, re) => {
-  return new Promise((resolve, reject) => {
-    try {
-      fs.readFile(gamesPath, "utf8", (err, data) => {
-        if (err) reject(err);
+const loadGameData = (gamesPath, re, interaction) => {
+  return new Promise((resolve) => {
+    fs.readFile(gamesPath, "utf8", (err, data) => {
+      try {
+        if (err) console.error(err);
 
         let gameInfo;
 
@@ -58,10 +58,15 @@ const loadGameData = (gamesPath, re) => {
         counterRef = 0;
         mpRef = playerCreatureMP;
         resolve(data);
-      });
-    } catch (err) {
-      reject(err);
-    }
+      } catch (err) {
+        console.error(err);
+        interaction.reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        });
+        resolve();
+      }
+    });
   });
 };
 
@@ -347,63 +352,64 @@ module.exports = {
     ),
 
   async execute(interaction, client) {
-    try {
-      const gamesPath = path.relative(process.cwd(), "docs/games.txt");
-      const userId = interaction.member.user.id;
-      let re;
-      let gameData;
-      let formatted;
+    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+    const userId = interaction.member.user.id;
+    const re = new RegExp("^.*" + userId + ".*$", "gm");
+    const gameData = await loadGameData(gamesPath, re, interaction);
+    let formatted;
 
-      re = new RegExp("^.*" + userId + ".*$", "gm");
-      gameData = await loadGameData(gamesPath, re);
+    if (gameData === undefined) {
+      interaction.reply({
+        content: "You must join the game first.",
+        ephemeral: true,
+      });
+      return;
+    }
 
-      if (gameData === undefined) {
-        interaction.reply({
-          content: "You must join the game first.",
-          ephemeral: true,
-        });
-        return;
-      }
+    if (interaction.options.getSubcommand() === "1") {
+      attackEnemyOrHeal(playerCreature.attackName, playerCreature.attackType);
+    }
 
-      if (interaction.options.getSubcommand() === "1") {
-        attackEnemyOrHeal(playerCreature.attackName, playerCreature.attackType);
-      }
+    if (interaction.options.getSubcommand() === "2") {
+      attackEnemyOrHeal(playerCreature.specialName, playerCreature.specialType);
+    }
 
-      if (interaction.options.getSubcommand() === "2") {
-        attackEnemyOrHeal(
-          playerCreature.specialName,
-          playerCreature.specialType
-        );
-      }
-
-      if (interaction.options.getSubcommand() === "3") {
-        attackEnemyOrHeal(
-          playerCreature.specialName2,
-          playerCreature.specialType2
-        );
-      }
-
-      formatted = gameData.replace(
-        re,
-        userId +
-          "," +
-          drachmas +
-          "," +
-          (playerCreature.id - 1) +
-          "," +
-          (chosenRelic.id - 1) +
-          "," +
-          playerCreatureHP +
-          "," +
-          playerCreatureMP +
-          "," +
-          (enemyCreature.id - 1) +
-          "," +
-          enemyCreatureHP
+    if (interaction.options.getSubcommand() === "3") {
+      attackEnemyOrHeal(
+        playerCreature.specialName2,
+        playerCreature.specialType2
       );
+    }
 
-      fs.writeFile(gamesPath, formatted, "utf8", (err) => {
-        if (err) return console.error(err);
+    formatted = gameData.replace(
+      re,
+      userId +
+        "," +
+        drachmas +
+        "," +
+        (playerCreature.id - 1) +
+        "," +
+        (chosenRelic.id - 1) +
+        "," +
+        playerCreatureHP +
+        "," +
+        playerCreatureMP +
+        "," +
+        (enemyCreature.id - 1) +
+        "," +
+        enemyCreatureHP
+    );
+
+    fs.writeFile(gamesPath, formatted, "utf8", (err) => {
+      try {
+        if (err) {
+          console.error(err);
+          interaction.reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          });
+          return;
+        }
 
         interaction.reply({
           content:
@@ -422,9 +428,13 @@ module.exports = {
             "*",
           ephemeral: true,
         });
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      } catch (err) {
+        console.error(err);
+        interaction.reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        });
+      }
+    });
   },
 };

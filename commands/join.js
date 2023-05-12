@@ -1,23 +1,26 @@
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
-const creatures = require("../constants/creatures");
-const relics = require("../constants/relics");
 
 // verfies if user has joined the game
-const verifyGameData = (gamesPath, re) => {
-  return new Promise((resolve, reject) => {
-    try {
-      fs.readFile(gamesPath, "utf8", (err, data) => {
-        if (err) reject(err);
+const verifyGameData = (gamesPath, re, interaction) => {
+  return new Promise((resolve) => {
+    fs.readFile(gamesPath, "utf8", (err, data) => {
+      try {
+        if (err) console.error(err);
 
         if (re.test(data)) resolve(true);
 
         resolve(false);
-      });
-    } catch (err) {
-      reject(err);
-    }
+      } catch (err) {
+        console.error(err);
+        interaction.reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        });
+        resolve(false);
+      }
+    });
   });
 };
 
@@ -27,50 +30,57 @@ module.exports = {
     .setDescription("Joins user to game"),
 
   async execute(interaction, client) {
-    try {
-      const gamesPath = path.relative(process.cwd(), "docs/games.txt");
-      const userId = interaction.member.user.id;
-      let re;
-      let newLine;
+    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+    const userId = interaction.member.user.id;
+    const re = new RegExp("^.*" + userId + ".*$", "gm");
+    const newLine =
+      userId +
+      "," +
+      0 +
+      "," +
+      Math.floor(Math.random() * 4) +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "\r\n";
 
-      re = new RegExp("^.*" + userId + ".*$", "gm");
+    if (await verifyGameData(gamesPath, re, interaction)) {
+      interaction.reply({
+        content: "You've already joined the game.",
+        ephemeral: true,
+      });
+      return;
+    }
 
-      if (await verifyGameData(gamesPath, re)) {
-        interaction.reply({
-          content: "You've already joined the game.",
-          ephemeral: true,
-        });
-        return;
-      }
-
-      newLine =
-        userId +
-        "," +
-        0 +
-        "," +
-        Math.floor(Math.random() * creatures.length) +
-        "," +
-        Math.floor(Math.random() * relics.length) +
-        "," +
-        0 +
-        "," +
-        0 +
-        "," +
-        0 +
-        "," +
-        0 +
-        "\r\n";
-
-      fs.appendFile(gamesPath, newLine, "utf8", (err) => {
-        if (err) return console.error(err);
+    fs.appendFile(gamesPath, newLine, "utf8", (err) => {
+      try {
+        if (err) {
+          console.log(err);
+          interaction.reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          });
+          return;
+        }
 
         interaction.reply({
           content: "You joined the game!",
           ephemeral: true,
         });
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      } catch (err) {
+        console.error(err);
+        interaction.reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        });
+      }
+    });
   },
 };

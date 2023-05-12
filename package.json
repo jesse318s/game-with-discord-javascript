@@ -1,7 +1,7 @@
 {
-  "name": "voice-bot",
+  "name": "omega-summoners",
   "version": "1.0.0",
-  "description": "Discord Voice Bot",
+  "description": "Omega Summoners Discord App",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.3.4",
+    "@devraelfreeze/discordjs-pagination": "^2.7.4",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3"
   }

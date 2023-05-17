@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 const path = require("node:path");
 const fs = require("node:fs");

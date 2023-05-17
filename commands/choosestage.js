@@ -2,21 +2,21 @@
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
-const relics = require("../constants/relics");
+const stages = require("../constants/stages");
 
-const choices = relics.map((relic) => ({
-  name: relic.name,
-  value: relic.id - 1,
+const choices = stages.map((stage) => ({
+  name: stage.name + " | Level " + stage.levelReq,
+  value: stage.id,
 }));
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("chooserelic")
-    .setDescription("Chooses the player's relic (this costs drachmas)")
+    .setName("choosestage")
+    .setDescription("Chooses the player's stage")
     .addIntegerOption((option) =>
       option
         .setName("name")
-        .setDescription("The name of the player's new relic")
+        .setDescription("The name of the player's new stage")
         .setRequired(true)
         .addChoices(...choices)
     ),
@@ -25,7 +25,7 @@ module.exports = {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
-    const relicIndex = interaction.options.getInteger("name");
+    const stageIndex = interaction.options.getInteger("name");
     let gameInfo;
     let formatted;
 
@@ -50,16 +50,20 @@ module.exports = {
 
         gameInfo = data.match(re)[0].split(",");
 
-        if (parseInt(gameInfo[1]) - relics[relicIndex].price < 0) {
+        if (
+          stages[stageIndex].levelReq >
+          Math.floor(Math.sqrt(parseInt(gameInfo[1])) * 0.25)
+        ) {
           interaction.reply({
-            content: "You can't afford this relic.",
+            content: "You must be higher level to choose this stage.",
             ephemeral: true,
           });
           return;
         }
 
-        gameInfo[2] = parseInt(gameInfo[1]) - relics[relicIndex].price;
-        gameInfo[4] = relicIndex;
+        gameInfo[5] = 0;
+        gameInfo[6] = 0;
+        gameInfo[7] = stageIndex;
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);
@@ -82,9 +86,7 @@ module.exports = {
 
           interaction.reply({
             content:
-              "You have chosen the " +
-              relics[relicIndex].name +
-              " as your relic.",
+              "You have chosen " + stages[stageIndex].name + " as your stage.",
             ephemeral: true,
           });
         } catch (err) {

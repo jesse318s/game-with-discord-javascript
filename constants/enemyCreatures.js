@@ -1,4 +1,4 @@
-const enemyCreatures = [
+const enemyCreaturesHome = [
   {
     id: 1,
     name: "Demon",
@@ -23,4 +23,106 @@ const enemyCreatures = [
   },
 ];
 
-module.exports = enemyCreatures;
+const enemyCreaturesStage1 = [
+  {
+    id: 1,
+    name: "Medusa",
+    reward: 5,
+    hp: 110,
+    attack: 30,
+    attackType: "Magic",
+    speed: 30,
+    defense: 15,
+    critical: 15,
+  },
+  {
+    id: 2,
+    name: "Baby Dragon",
+    reward: 5,
+    hp: 60,
+    attack: 50,
+    attackType: "Magic",
+    speed: 60,
+    defense: 20,
+    critical: 25,
+  },
+];
+
+const enemyCreaturesStage2 = [
+  {
+    id: 1,
+    name: "Ice Golem",
+    reward: 10,
+    hp: 110,
+    attack: 50,
+    attackType: "Magic",
+    speed: 30,
+    defense: 15,
+    critical: 15,
+  },
+  {
+    id: 2,
+    name: "Nuclear Golem",
+    reward: 10,
+    hp: 60,
+    attack: 70,
+    attackType: "Magic",
+    speed: 60,
+    defense: 20,
+    critical: 25,
+  },
+  {
+    id: 3,
+    name: "Quantum Golem",
+    reward: 10,
+    hp: 60,
+    attack: 70,
+    attackType: "Magic",
+    speed: 60,
+    defense: 20,
+    critical: 25,
+  },
+];
+
+const enemyCreaturesStage3 = [
+  {
+    id: 1,
+    name: "Skeleton",
+    reward: 12,
+    hp: 125,
+    attack: 50,
+    attackType: "Normal",
+    speed: 30,
+    defense: 30,
+    critical: 10,
+  },
+  {
+    id: 2,
+    name: "Skeleton",
+    reward: 12,
+    hp: 100,
+    attack: 50,
+    attackType: "Normal",
+    speed: 40,
+    defense: 20,
+    critical: 50,
+  },
+  {
+    id: 3,
+    name: "Skeleton",
+    reward: 12,
+    hp: 100,
+    attack: 40,
+    attackType: "Normal",
+    speed: 70,
+    defense: 20,
+    critical: 50,
+  },
+];
+
+module.exports = {
+  enemyCreaturesHome,
+  enemyCreaturesStage1,
+  enemyCreaturesStage2,
+  enemyCreaturesStage3,
+};

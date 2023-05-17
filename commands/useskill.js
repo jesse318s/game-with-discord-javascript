@@ -1,15 +1,18 @@
+"use strict";
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
 const relics = require("../constants/relics");
-const enemyCreatures = require("../constants/enemyCreatures");
+const stages = require("../constants/stages");
 
+let playerExperience;
 let drachmas;
 let playerCreature;
 let chosenRelic;
 let playerCreatureHP;
 let playerCreatureMP;
+let stageId;
 let enemyCreature;
 let enemyCreatureHP;
 let combatAlert;
@@ -31,17 +34,24 @@ const loadGameData = (gamesPath, re, interaction) => {
         }
 
         gameInfo = data.match(re)[0].split(",");
-        drachmas = parseInt(gameInfo[1]);
-        playerCreature = creatures[gameInfo[2]];
-        chosenRelic = relics[gameInfo[3]];
-        playerCreatureHP = parseFloat(gameInfo[4]);
-        playerCreatureMP = parseFloat(gameInfo[5]);
-        enemyCreature = enemyCreatures[parseInt(gameInfo[6])];
-        enemyCreatureHP = parseFloat(gameInfo[7]);
+        playerExperience = parseInt(gameInfo[1]);
+        drachmas = parseInt(gameInfo[2]);
+        playerCreature = creatures[gameInfo[3]];
+        chosenRelic = relics[gameInfo[4]];
+        playerCreatureHP = parseFloat(gameInfo[5]);
+        playerCreatureMP = parseFloat(gameInfo[6]);
+        stageId = parseInt(gameInfo[7]);
+        enemyCreature =
+          stages[stageId].enemyCreatures[
+            Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
+          ];
+        enemyCreatureHP = parseFloat(gameInfo[9]);
 
         if (playerCreatureHP <= 0) {
           enemyCreature =
-            enemyCreatures[Math.floor(Math.random() * enemyCreatures.length)];
+            stages[stageId].enemyCreatures[
+              Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
+            ];
           enemyCreatureHP = enemyCreature.hp;
           playerCreatureHP = playerCreature.hp;
           playerCreatureMP = playerCreature.mp;
@@ -49,7 +59,9 @@ const loadGameData = (gamesPath, re, interaction) => {
 
         if (enemyCreatureHP <= 0) {
           enemyCreature =
-            enemyCreatures[Math.floor(Math.random() * enemyCreatures.length)];
+            stages[stageId].enemyCreatures[
+              Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
+            ];
           enemyCreatureHP = enemyCreature.hp;
           playerCreatureHP = playerCreature.hp;
           playerCreatureMP = playerCreature.mp;
@@ -229,6 +241,8 @@ const performSpecial = (
     ) {
       enemyCreatureHP = 0;
       combatAlert = "Victory!";
+      playerExperience += enemyCreature.reward * 2;
+      drachmas += enemyCreature.reward;
       return;
     }
 
@@ -302,6 +316,7 @@ const attackEnemyOrHeal = (moveName, moveType) => {
       ) {
         enemyCreatureHP = 0;
         combatAlert = "Victory!";
+        playerExperience += enemyCreature.reward * 2;
         drachmas += enemyCreature.reward;
         return;
       }
@@ -385,6 +400,8 @@ module.exports = {
       re,
       userId +
         "," +
+        playerExperience +
+        "," +
         drachmas +
         "," +
         (playerCreature.id - 1) +
@@ -394,6 +411,8 @@ module.exports = {
         playerCreatureHP +
         "," +
         playerCreatureMP +
+        "," +
+        stageId +
         "," +
         (enemyCreature.id - 1) +
         "," +
@@ -425,7 +444,10 @@ module.exports = {
             enemyCreatureHP +
             "\n\n*" +
             combatAlert +
-            "*",
+            "*\n\nLevel: " +
+            Math.sqrt(playerExperience * 0.25).toFixed(2) +
+            "\nDrachmas: " +
+            drachmas,
           ephemeral: true,
         });
       } catch (err) {

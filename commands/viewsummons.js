@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const creatures = require("../constants/creatures");
 const {

@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
@@ -58,9 +59,9 @@ module.exports = {
         }
 
         gameInfo[1] = parseInt(gameInfo[1]) - creatures[summonIndex].price;
-        gameInfo[2] = summonIndex;
-        gameInfo[4] = 0;
+        gameInfo[3] = summonIndex;
         gameInfo[5] = 0;
+        gameInfo[6] = 0;
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);

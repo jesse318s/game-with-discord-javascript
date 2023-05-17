@@ -1,14 +1,17 @@
+"use strict";
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
 const relics = require("../constants/relics");
-const enemyCreatures = require("../constants/enemyCreatures");
+const stages = require("../constants/stages");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("viewgameinfo")
-    .setDescription("Attacks enemy or performs special"),
+    .setDescription(
+      "Displays player's game info (such as experience level or total drachmas)"
+    ),
 
   async execute(interaction, client) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
@@ -38,13 +41,15 @@ module.exports = {
 
         gameInfo = data.match(re)[0].split(",");
         interaction.reply({
-          content: `Drachmas: ${gameInfo[1]}\nSummon: ${
-            creatures[gameInfo[2]].name
-          }\nChosen relic: ${relics[gameInfo[3]].name}\nSummon HP: ${
-            gameInfo[4]
-          }\nSummon MP: ${gameInfo[5]}\nEnemy creature: ${
-            enemyCreatures[gameInfo[6]].name
-          }\nEnemy creature HP: ${gameInfo[7]}`,
+          content: `Level: ${Math.sqrt(parseInt(gameInfo[1]) * 0.25).toFixed(
+            2
+          )}\nDrachmas: ${gameInfo[2]}
+          \nSummon: ${creatures[gameInfo[3]].name}\nChosen relic: ${
+            relics[gameInfo[4]].name
+          }\nSummon HP: ${gameInfo[5]}\nSummon MP: ${gameInfo[6]}
+          \nStage: ${stages[gameInfo[7]].name}\nEnemy creature: ${
+            stages[gameInfo[7]].enemyCreatures[gameInfo[8]].name
+          }\nEnemy creature HP: ${gameInfo[9]}`,
           ephemeral: true,
         });
       } catch (err) {

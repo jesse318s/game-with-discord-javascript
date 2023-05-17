@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const relics = require("../constants/relics");
 const {

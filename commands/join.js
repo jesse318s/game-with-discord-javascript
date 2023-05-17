@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
@@ -38,7 +39,11 @@ module.exports = {
       "," +
       0 +
       "," +
+      50 +
+      "," +
       Math.floor(Math.random() * 4) +
+      "," +
+      0 +
       "," +
       0 +
       "," +

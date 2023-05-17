@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const path = require("node:path");

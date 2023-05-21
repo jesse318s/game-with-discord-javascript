@@ -21,7 +21,7 @@ module.exports = {
         .addChoices(...choices)
     ),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
@@ -50,7 +50,7 @@ module.exports = {
 
         gameInfo = data.match(re)[0].split(",");
 
-        if (parseInt(gameInfo[1]) - relics[relicIndex].price < 0) {
+        if (parseInt(gameInfo[2]) - relics[relicIndex].price < 0) {
           interaction.reply({
             content: "You can't afford this relic.",
             ephemeral: true,
@@ -58,8 +58,11 @@ module.exports = {
           return;
         }
 
-        gameInfo[2] = parseInt(gameInfo[1]) - relics[relicIndex].price;
-        gameInfo[4] = relicIndex;
+        if (parseInt(gameInfo[4]) !== relicIndex) {
+          gameInfo[2] = parseInt(gameInfo[2]) - relics[relicIndex].price;
+          gameInfo[4] = relicIndex;
+        }
+
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);

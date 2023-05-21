@@ -47,17 +47,7 @@ const loadGameData = (gamesPath, re, interaction) => {
           ];
         enemyCreatureHP = parseFloat(gameInfo[9]);
 
-        if (playerCreatureHP <= 0) {
-          enemyCreature =
-            stages[stageId].enemyCreatures[
-              Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
-            ];
-          enemyCreatureHP = enemyCreature.hp;
-          playerCreatureHP = playerCreature.hp;
-          playerCreatureMP = playerCreature.mp;
-        }
-
-        if (enemyCreatureHP <= 0) {
+        if (playerCreatureHP <= 0 || enemyCreatureHP <= 0) {
           enemyCreature =
             stages[stageId].enemyCreatures[
               Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
@@ -343,10 +333,9 @@ const attackEnemyOrHeal = (moveName, moveType) => {
         moveName,
         moveType
       );
-      return;
+    } else {
+      combatAlert = "Not enough MP!";
     }
-
-    combatAlert = "Not enough MP!";
   } catch (err) {
     console.log(err);
   }
@@ -366,7 +355,7 @@ module.exports = {
       subcommand.setName("3").setDescription("Performs secondary special")
     ),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
@@ -445,7 +434,7 @@ module.exports = {
             "\n\n*" +
             combatAlert +
             "*\n\nLevel: " +
-            Math.sqrt(playerExperience * 0.25).toFixed(2) +
+            (Math.sqrt(playerExperience) * 0.25).toFixed(2) +
             "\nDrachmas: " +
             drachmas,
           ephemeral: true,

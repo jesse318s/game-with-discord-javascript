@@ -13,7 +13,7 @@ module.exports = {
       "Displays player's game info (such as experience level or total drachmas)"
     ),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
 
     fs.readFile(gamesPath, "utf8", (err, data) => {
@@ -41,9 +41,9 @@ module.exports = {
 
         gameInfo = data.match(re)[0].split(",");
         interaction.reply({
-          content: `Level: ${Math.sqrt(parseInt(gameInfo[1]) * 0.25).toFixed(
+          content: `Level: ${(Math.sqrt(parseInt(gameInfo[1])) * 0.25).toFixed(
             2
-          )}\nDrachmas: ${gameInfo[2]}
+          )} | ${gameInfo[1]} XP\nDrachmas: ${gameInfo[2]}
           \nSummon: ${creatures[gameInfo[3]].name}\nChosen relic: ${
             relics[gameInfo[4]].name
           }\nSummon HP: ${gameInfo[5]}\nSummon MP: ${gameInfo[6]}

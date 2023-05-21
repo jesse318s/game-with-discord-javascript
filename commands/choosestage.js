@@ -21,7 +21,7 @@ module.exports = {
         .addChoices(...choices)
     ),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
@@ -55,7 +55,10 @@ module.exports = {
           Math.floor(Math.sqrt(parseInt(gameInfo[1])) * 0.25)
         ) {
           interaction.reply({
-            content: "You must be higher level to choose this stage.",
+            content:
+              "You must be level " +
+              stages[stageIndex].levelReq +
+              " to choose this stage.",
             ephemeral: true,
           });
           return;

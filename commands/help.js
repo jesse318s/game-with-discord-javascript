@@ -7,7 +7,7 @@ module.exports = {
     .setName("help")
     .setDescription("Lists all available commands"),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const commandFiles = fs
       .readdirSync("./commands")
       .filter((file) => file.endsWith(".js"));

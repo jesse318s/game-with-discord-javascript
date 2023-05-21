@@ -30,7 +30,7 @@ module.exports = {
     .setName("join")
     .setDescription("Joins user to game"),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");

@@ -12,7 +12,7 @@ module.exports = {
     .setName("viewsummons")
     .setDescription("Displays available summons"),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const pages = [];
     let creature;
     let embed;
@@ -29,9 +29,9 @@ module.exports = {
             MP regen: ${creature.mpRegen}
             Special: ${creature.specialName} (${creature.special}, ${creature.specialType}, cost: ${creature.specialCost})
             Special 2: ${creature.specialName2} (${creature.special2}, ${creature.specialType2}, cost: ${creature.specialCost2})` +
-          "\n\n**Price: " +
+          "\n\n**Price:** " +
           creature.price +
-          " drachmas**"
+          " XP"
       );
       pages.push(embed);
     }

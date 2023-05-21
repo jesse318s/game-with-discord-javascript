@@ -12,7 +12,7 @@ module.exports = {
     .setName("viewrelics")
     .setDescription("Displays available relics"),
 
-  async execute(interaction, client) {
+  async execute(interaction) {
     const pages = [];
     let relic;
     let embed;
@@ -22,7 +22,7 @@ module.exports = {
       embed = new EmbedBuilder()
         .setTitle(relic.name)
         .setDescription(
-          relic.description + "\n\n**Price: " + relic.price + " drachmas**"
+          relic.description + "\n\n**Price:** " + relic.price + " drachmas"
         );
       pages.push(embed);
     }

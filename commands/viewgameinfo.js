@@ -20,10 +20,12 @@ module.exports = {
       try {
         if (err) {
           console.log(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
@@ -32,32 +34,38 @@ module.exports = {
         let gameInfo;
 
         if (!re.test(data)) {
-          interaction.reply({
-            content: "You must join the game first.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You must join the game first.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         gameInfo = data.match(re)[0].split(",");
-        interaction.reply({
-          content: `Level: ${(Math.sqrt(parseInt(gameInfo[1])) * 0.25).toFixed(
-            2
-          )} | ${gameInfo[1]} XP\nDrachmas: ${gameInfo[2]}
+        interaction
+          .reply({
+            content: `Level: ${(
+              Math.sqrt(parseInt(gameInfo[1])) * 0.25
+            ).toFixed(2)} | ${gameInfo[1]} XP\nDrachmas: ${gameInfo[2]}
           \nSummon: ${creatures[gameInfo[3]].name}\nChosen relic: ${
-            relics[gameInfo[4]].name
-          }\nSummon HP: ${gameInfo[5]}\nSummon MP: ${gameInfo[6]}
+              relics[gameInfo[4]].name
+            }\nSummon HP: ${gameInfo[5]}\nSummon MP: ${gameInfo[6]}
           \nStage: ${stages[gameInfo[7]].name}\nEnemy creature: ${
-            stages[gameInfo[7]].enemyCreatures[gameInfo[8]].name
-          }\nEnemy creature HP: ${gameInfo[9]}`,
-          ephemeral: true,
-        });
+              stages[gameInfo[7]].enemyCreatures[gameInfo[8]].name
+            }\nEnemy creature HP: ${gameInfo[9]}`,
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       } catch (err) {
         console.log(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
     });
   },

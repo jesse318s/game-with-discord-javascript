@@ -34,28 +34,34 @@ module.exports = {
       try {
         if (err) {
           console.log(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         if (!re.test(data)) {
-          interaction.reply({
-            content: "You must join the game first.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You must join the game first.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         gameInfo = data.match(re)[0].split(",");
 
         if (parseInt(gameInfo[1]) - creatures[summonIndex].price < 0) {
-          interaction.reply({
-            content: "You can't afford this summon.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You can't afford this summon.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
@@ -67,44 +73,53 @@ module.exports = {
         }
 
         if (
+          gameInfo[7] &&
           stages[gameInfo[7]].levelReq >
-          Math.floor(Math.sqrt(parseInt(gameInfo[1])) * 0.25)
+            Math.floor(Math.sqrt(parseInt(gameInfo[1])) * 0.25)
         )
           gameInfo[7] = 0;
 
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
 
       fs.writeFile(gamesPath, formatted, "utf8", (err) => {
         try {
           if (err) {
             console.log(err);
-            interaction.reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            });
+            interaction
+              .reply({
+                content: "Something went wrong.",
+                ephemeral: true,
+              })
+              .catch((err) => console.error(err));
             return;
           }
 
-          interaction.reply({
-            content:
-              "You have chosen the " +
-              creatures[summonIndex].name +
-              " as your summon.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content:
+                "You have chosen the " +
+                creatures[summonIndex].name +
+                " as your summon.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         } catch (err) {
           console.error(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         }
       });
     });

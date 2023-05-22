@@ -20,7 +20,7 @@ let counterRef;
 let mpRef;
 
 // loads game info
-const loadGameData = (gamesPath, re, interaction) => {
+const loadGameData = (gamesPath, re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
@@ -62,14 +62,23 @@ const loadGameData = (gamesPath, re, interaction) => {
         resolve(data);
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
-        resolve();
+        resolve(null);
       }
     });
   });
+};
+
+const denyGameData = async (interaction) => {
+  await interaction
+    .reply({
+      content: "Please join the game if you haven't.",
+      ephemeral: true,
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  throw new Error(`Game data was denied for ${interaction.user.tag}.
+    User ID: ${interaction.user.id}`);
 };
 
 // regens player creature mp
@@ -359,16 +368,10 @@ module.exports = {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
-    const gameData = await loadGameData(gamesPath, re, interaction);
+    const gameData = await loadGameData(gamesPath, re);
     let formatted;
 
-    if (gameData === undefined) {
-      interaction.reply({
-        content: "You must join the game first.",
-        ephemeral: true,
-      });
-      return;
-    }
+    gameData ?? (await denyGameData(interaction));
 
     if (interaction.options.getSubcommand() === "1") {
       attackEnemyOrHeal(playerCreature.attackName, playerCreature.attackType);
@@ -412,39 +415,45 @@ module.exports = {
       try {
         if (err) {
           console.error(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
-        interaction.reply({
-          content:
-            "**Player " +
-            playerCreature.name +
-            "**\nHP: " +
-            playerCreatureHP +
-            "\nMP: " +
-            playerCreatureMP +
-            "\n\n**Enemy " +
-            enemyCreature.name +
-            "**\nHP: " +
-            enemyCreatureHP +
-            "\n\n*" +
-            combatAlert +
-            "*\n\nLevel: " +
-            (Math.sqrt(playerExperience) * 0.25).toFixed(2) +
-            "\nDrachmas: " +
-            drachmas,
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content:
+              "**Player " +
+              playerCreature.name +
+              "**\nHP: " +
+              playerCreatureHP +
+              "\nMP: " +
+              playerCreatureMP +
+              "\n\n**Enemy " +
+              enemyCreature.name +
+              "**\nHP: " +
+              enemyCreatureHP +
+              "\n\n*" +
+              combatAlert +
+              "*\n\nLevel: " +
+              (Math.sqrt(playerExperience) * 0.25).toFixed(2) +
+              "\nDrachmas: " +
+              drachmas,
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
     });
   },

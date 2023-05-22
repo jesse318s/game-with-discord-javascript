@@ -33,18 +33,22 @@ module.exports = {
       try {
         if (err) {
           console.log(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         if (!re.test(data)) {
-          interaction.reply({
-            content: "You must join the game first.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You must join the game first.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
@@ -54,13 +58,15 @@ module.exports = {
           stages[stageIndex].levelReq >
           Math.floor(Math.sqrt(parseInt(gameInfo[1])) * 0.25)
         ) {
-          interaction.reply({
-            content:
-              "You must be level " +
-              stages[stageIndex].levelReq +
-              " to choose this stage.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content:
+                "You must be level " +
+                stages[stageIndex].levelReq +
+                " to choose this stage.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
@@ -70,34 +76,44 @@ module.exports = {
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
 
       fs.writeFile(gamesPath, formatted, "utf8", (err) => {
         try {
           if (err) {
             console.log(err);
-            interaction.reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            });
+            interaction
+              .reply({
+                content: "Something went wrong.",
+                ephemeral: true,
+              })
+              .catch((err) => console.error(err));
             return;
           }
 
-          interaction.reply({
-            content:
-              "You have chosen " + stages[stageIndex].name + " as your stage.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content:
+                "You have chosen " +
+                stages[stageIndex].name +
+                " as your stage.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         } catch (err) {
           console.error(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         }
       });
     });

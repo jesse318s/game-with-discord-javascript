@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 // verfies if user has joined the game
-const verifyGameData = (gamesPath, re, interaction) => {
+const verifyGameData = (gamesPath, re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
@@ -15,10 +15,6 @@ const verifyGameData = (gamesPath, re, interaction) => {
         resolve(false);
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
         resolve(false);
       }
     });
@@ -56,11 +52,13 @@ module.exports = {
       0 +
       "\r\n";
 
-    if (await verifyGameData(gamesPath, re, interaction)) {
-      interaction.reply({
-        content: "You've already joined the game.",
-        ephemeral: true,
-      });
+    if (await verifyGameData(gamesPath, re)) {
+      interaction
+        .reply({
+          content: "You've already joined the game.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
       return;
     }
 
@@ -68,23 +66,29 @@ module.exports = {
       try {
         if (err) {
           console.log(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
-        interaction.reply({
-          content: "You joined the game!",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "You joined the game!",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
     });
   },

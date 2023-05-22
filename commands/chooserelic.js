@@ -33,28 +33,34 @@ module.exports = {
       try {
         if (err) {
           console.log(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         if (!re.test(data)) {
-          interaction.reply({
-            content: "You must join the game first.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You must join the game first.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
         gameInfo = data.match(re)[0].split(",");
 
         if (parseInt(gameInfo[2]) - relics[relicIndex].price < 0) {
-          interaction.reply({
-            content: "You can't afford this relic.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "You can't afford this relic.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
@@ -66,36 +72,44 @@ module.exports = {
         formatted = data.replace(re, gameInfo.join(","));
       } catch (err) {
         console.error(err);
-        interaction.reply({
-          content: "Something went wrong.",
-          ephemeral: true,
-        });
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
       }
 
       fs.writeFile(gamesPath, formatted, "utf8", (err) => {
         try {
           if (err) {
             console.log(err);
-            interaction.reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            });
+            interaction
+              .reply({
+                content: "Something went wrong.",
+                ephemeral: true,
+              })
+              .catch((err) => console.error(err));
             return;
           }
 
-          interaction.reply({
-            content:
-              "You have chosen the " +
-              relics[relicIndex].name +
-              " as your relic.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content:
+                "You have chosen the " +
+                relics[relicIndex].name +
+                " as your relic.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         } catch (err) {
           console.error(err);
-          interaction.reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          });
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
         }
       });
     });

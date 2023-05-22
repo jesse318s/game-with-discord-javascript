@@ -19,9 +19,11 @@ module.exports = {
       str += `**Command:** ${command.data.name}, **Description:** ${command.data.description}\n`;
     }
 
-    interaction.reply({
-      content: str,
-      ephemeral: true,
-    });
+    interaction
+      .reply({
+        content: str,
+        ephemeral: true,
+      })
+      .catch((err) => console.error(err));
   },
 };

@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const path = require("node:path");
@@ -17,12 +18,11 @@ const commandFiles = fs
   .filter((file) => file.endsWith(".js"));
 let filePath;
 
+// initialize client commands as new collection
 client.commands = new Collection();
 
 // listen to the event that signals bot is ready to start working
-client.on("ready", () => {
-  console.log(`logged in as ${client.user.tag}`);
-});
+client.on("ready", () => console.log(`logged in as ${client.user.tag}`));
 
 // command handling
 for (const file of commandFiles) {
@@ -51,20 +51,24 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 
   try {
-    await command.execute(interaction, client);
+    await command.execute(interaction);
   } catch (err) {
     console.error(err);
 
     if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
+      await interaction
+        .followUp({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
     } else {
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
+      await interaction
+        .reply({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
     }
   }
 });

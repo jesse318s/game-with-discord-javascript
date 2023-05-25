@@ -1,45 +1,94 @@
+"use strict";
 const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
+
+const verifyGameData = (gamesPath, re) => {
+  return new Promise((resolve) => {
+    fs.readFile(gamesPath, "utf8", (err, data) => {
+      try {
+        if (err) console.error(err);
+
+        if (re.test(data)) resolve(true);
+
+        resolve(false);
+      } catch (err) {
+        console.error(err);
+        resolve(false);
+      }
+    });
+  });
+};
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("join")
     .setDescription("Joins user to game"),
 
-  async execute(interaction, client) {
-    try {
-      const enemiesPath = path.relative(process.cwd(), "docs/enemies.txt");
-      const userId = interaction.member.user.id;
-      let re;
-      let newLine;
+  async execute(interaction) {
+    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+    const userId = interaction.member.user.id;
+    const re = new RegExp("^.*" + userId + ".*$", "gm");
+    const newLine =
+      userId +
+      "," +
+      0 +
+      "," +
+      50 +
+      "," +
+      Math.floor(Math.random() * 4) +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "," +
+      0 +
+      "\r\n";
 
-      fs.readFile(enemiesPath, "utf8", function (err, data) {
-        re = new RegExp("^.*" + userId + ".*$", "gm");
+    if (await verifyGameData(gamesPath, re)) {
+      interaction
+        .reply({
+          content: "You've already joined the game.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+      return;
+    }
 
-        if (re.test(data)) {
-          interaction.reply({
-            content: "You've already joined the game.",
-            ephemeral: true,
-          });
+    fs.appendFile(gamesPath, newLine, "utf8", (err) => {
+      try {
+        if (err) {
+          console.log(err);
+          interaction
+            .reply({
+              content: "Something went wrong.",
+              ephemeral: true,
+            })
+            .catch((err) => console.error(err));
           return;
         }
 
-        newLine = userId + "," + 100 + "\r\n";
-
-        if (err) return console.log(err);
-
-        fs.appendFile(enemiesPath, newLine, "utf8", function (err) {
-          if (err) return console.log(err);
-        });
-
-        interaction.reply({
-          content: "You joined the game!",
-          ephemeral: true,
-        });
-      });
-    } catch (err) {
-      console.error(err);
-    }
+        interaction
+          .reply({
+            content: "You joined the game!",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+      }
+    });
   },
 };

@@ -19,7 +19,6 @@ let combatAlert;
 let counterRef;
 let mpRef;
 
-// loads game info
 const loadGameData = (gamesPath, re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {
@@ -81,7 +80,6 @@ const denyGameData = async (interaction) => {
     User ID: ${interaction.user.id}`);
 };
 
-// regens player creature mp
 const regenMP = () => {
   if (
     playerCreatureMP !== playerCreature.mp + chosenRelic.mpMod &&
@@ -96,7 +94,6 @@ const regenMP = () => {
   playerCreatureMP = playerCreature.mp + chosenRelic.mpMod;
 };
 
-// checks for player death, and damages player otherwise
 const dieOrTakeDamage = (playerCreatureDefense, criticalMultiplier) => {
   if (
     playerCreatureHP -
@@ -115,7 +112,6 @@ const dieOrTakeDamage = (playerCreatureDefense, criticalMultiplier) => {
       criticalMultiplier;
 };
 
-// initiates chance of enemy counter attack
 const receiveEnemyCounterAttack = (chancePlayer, moveName, moveType) => {
   try {
     const playerCreatureSpeed = playerCreature.speed + chosenRelic.speedMod;
@@ -172,7 +168,6 @@ const receiveEnemyCounterAttack = (chancePlayer, moveName, moveType) => {
   }
 };
 
-// completes player lifesteal check and heal
 const checkLifesteal = (
   playerCreatureSpecial,
   criticalMultiplier,
@@ -195,7 +190,6 @@ const checkLifesteal = (
   receiveEnemyCounterAttack(chancePlayer, moveName, moveType);
 };
 
-// heals player creature
 const healPlayerCreature = (
   chancePlayer,
   playerCreatureSpecial,
@@ -218,7 +212,6 @@ const healPlayerCreature = (
   receiveEnemyCounterAttack(chancePlayer, moveName, moveType);
 };
 
-// performs creature special
 const performSpecial = (
   chancePlayer,
   playerCreatureSpecial,
@@ -271,7 +264,6 @@ const performSpecial = (
   );
 };
 
-// initiates chance to attack enemy creature
 const attackEnemyOrHeal = (moveName, moveType) => {
   try {
     const playerCreatureAttack = playerCreature.attack + chosenRelic.attackMod;

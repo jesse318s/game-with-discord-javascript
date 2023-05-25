@@ -74,6 +74,39 @@ module.exports = {
         gameInfo[6] = 0;
         gameInfo[7] = stageIndex;
         formatted = data.replace(re, gameInfo.join(","));
+
+        fs.writeFile(gamesPath, formatted, "utf8", (err) => {
+          try {
+            if (err) {
+              console.log(err);
+              interaction
+                .reply({
+                  content: "Something went wrong.",
+                  ephemeral: true,
+                })
+                .catch((err) => console.error(err));
+              return;
+            }
+
+            interaction
+              .reply({
+                content:
+                  "You have chosen " +
+                  stages[stageIndex].name +
+                  " as your stage.",
+                ephemeral: true,
+              })
+              .catch((err) => console.error(err));
+          } catch (err) {
+            console.error(err);
+            interaction
+              .reply({
+                content: "Something went wrong.",
+                ephemeral: true,
+              })
+              .catch((err) => console.error(err));
+          }
+        });
       } catch (err) {
         console.error(err);
         interaction
@@ -83,39 +116,6 @@ module.exports = {
           })
           .catch((err) => console.error(err));
       }
-
-      fs.writeFile(gamesPath, formatted, "utf8", (err) => {
-        try {
-          if (err) {
-            console.log(err);
-            interaction
-              .reply({
-                content: "Something went wrong.",
-                ephemeral: true,
-              })
-              .catch((err) => console.error(err));
-            return;
-          }
-
-          interaction
-            .reply({
-              content:
-                "You have chosen " +
-                stages[stageIndex].name +
-                " as your stage.",
-              ephemeral: true,
-            })
-            .catch((err) => console.error(err));
-        } catch (err) {
-          console.error(err);
-          interaction
-            .reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            })
-            .catch((err) => console.error(err));
-        }
-      });
     });
   },
 };

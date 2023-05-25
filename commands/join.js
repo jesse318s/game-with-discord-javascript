@@ -3,7 +3,6 @@ const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 
-// verfies if user has joined the game
 const verifyGameData = (gamesPath, re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {

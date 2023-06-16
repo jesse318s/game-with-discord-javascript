@@ -23,7 +23,8 @@ const verifyGameData = (gamesPath, re) => {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("join")
-    .setDescription("Joins user to game"),
+    .setDescription("Joins user to game")
+    .setDMPermission(false),
 
   async execute(interaction) {
     const gamesPath = path.relative(process.cwd(), "docs/games.txt");
@@ -76,7 +77,8 @@ module.exports = {
 
         interaction
           .reply({
-            content: "You joined the game!",
+            content:
+              'You joined the game! Use "/help" to list all available commands.',
             ephemeral: true,
           })
           .catch((err) => console.error(err));

@@ -13,6 +13,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("choosestage")
     .setDescription("Chooses the player's stage")
+    .setDMPermission(false)
     .addIntegerOption((option) =>
       option
         .setName("name")

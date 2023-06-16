@@ -13,6 +13,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("chooserelic")
     .setDescription("Chooses the player's relic (this costs drachmas)")
+    .setDMPermission(false)
     .addIntegerOption((option) =>
       option
         .setName("name")

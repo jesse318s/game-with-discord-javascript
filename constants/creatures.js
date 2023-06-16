@@ -2,6 +2,7 @@ const creatures = [
   {
     id: 1,
     name: "Demon",
+    img: "demon_creature.png",
     price: 50,
     hp: 60,
     attack: 50,
@@ -24,6 +25,7 @@ const creatures = [
   {
     id: 2,
     name: "Medusa",
+    img: "medusa_creature.png",
     price: 50,
     hp: 110,
     attack: 30,
@@ -46,6 +48,7 @@ const creatures = [
   {
     id: 3,
     name: "Baby Dragon",
+    img: "small_dragon_creature.png",
     price: 50,
     hp: 60,
     attack: 50,
@@ -68,6 +71,7 @@ const creatures = [
   {
     id: 4,
     name: "Lizard",
+    img: "lizard_creature.png",
     price: 50,
     hp: 110,
     attack: 30,
@@ -90,6 +94,7 @@ const creatures = [
   {
     id: 5,
     name: "Ice Golem",
+    img: "ice_golem_creature.png",
     price: 50,
     hp: 110,
     attack: 30,
@@ -112,6 +117,7 @@ const creatures = [
   {
     id: 6,
     name: "Nuclear Golem",
+    img: "nuke_golem_creature.png",
     price: 500,
     hp: 60,
     attack: 50,
@@ -134,6 +140,7 @@ const creatures = [
   {
     id: 7,
     name: "Quantum Golem",
+    img: "quantum_golem_creature.png",
     price: 500,
     hp: 60,
     attack: 50,

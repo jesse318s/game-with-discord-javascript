@@ -5,7 +5,8 @@ const fs = require("fs");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("help")
-    .setDescription("Lists all available commands"),
+    .setDescription("Lists all available commands")
+    .setDMPermission(false),
 
   async execute(interaction) {
     const commandFiles = fs
@@ -16,7 +17,7 @@ module.exports = {
 
     for (const file of commandFiles) {
       command = require(`./${file}`);
-      str += `**Command:** ${command.data.name}, **Description:** ${command.data.description}\n`;
+      str += `\u2022 **Command:** ${command.data.name}, **Description:** ${command.data.description}\n`;
     }
 
     interaction

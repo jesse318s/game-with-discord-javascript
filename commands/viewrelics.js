@@ -10,7 +10,8 @@ const {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("viewrelics")
-    .setDescription("Displays available relics"),
+    .setDescription("Displays available relics")
+    .setDMPermission(false),
 
   async execute(interaction) {
     const pages = [];

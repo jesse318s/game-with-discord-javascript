@@ -14,6 +14,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("choosesummon")
     .setDescription("Chooses the player's summon (this costs drachmas)")
+    .setDMPermission(false)
     .addIntegerOption((option) =>
       option
         .setName("name")

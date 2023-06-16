@@ -1,10 +1,15 @@
 "use strict";
-const { SlashCommandBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  AttachmentBuilder,
+  EmbedBuilder,
+} = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
 const relics = require("../constants/relics");
 const stages = require("../constants/stages");
+const { createCanvas, loadImage } = require("canvas");
 
 let playerExperience;
 let drachmas;
@@ -40,10 +45,7 @@ const loadGameData = (gamesPath, re) => {
         playerCreatureHP = parseFloat(gameInfo[5]);
         playerCreatureMP = parseFloat(gameInfo[6]);
         stageId = parseInt(gameInfo[7]);
-        enemyCreature =
-          stages[stageId].enemyCreatures[
-            Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
-          ];
+        enemyCreature = stages[stageId].enemyCreatures[parseFloat(gameInfo[8])];
         enemyCreatureHP = parseFloat(gameInfo[9]);
 
         if (playerCreatureHP <= 0 || enemyCreatureHP <= 0) {
@@ -52,8 +54,8 @@ const loadGameData = (gamesPath, re) => {
               Math.floor(Math.random() * stages[stageId].enemyCreatures.length)
             ];
           enemyCreatureHP = enemyCreature.hp;
-          playerCreatureHP = playerCreature.hp;
-          playerCreatureMP = playerCreature.mp;
+          playerCreatureHP = playerCreature.hp + chosenRelic.hpMod;
+          playerCreatureMP = playerCreature.mp + chosenRelic.mpMod;
         }
 
         counterRef = 0;
@@ -342,10 +344,119 @@ const attackEnemyOrHeal = (moveName, moveType) => {
   }
 };
 
+const replaceGameData = (gameData, re, userId) => {
+  return gameData.replace(
+    re,
+    userId +
+      "," +
+      playerExperience +
+      "," +
+      drachmas +
+      "," +
+      (playerCreature.id - 1) +
+      "," +
+      (chosenRelic.id - 1) +
+      "," +
+      playerCreatureHP +
+      "," +
+      playerCreatureMP +
+      "," +
+      stageId +
+      "," +
+      (enemyCreature.id - 1) +
+      "," +
+      enemyCreatureHP
+  );
+};
+
+const createGameCanvas = async () => {
+  const bg = await loadImage(
+    path.join(
+      __dirname,
+      "..",
+      "assets",
+      "backgrounds",
+      "background" + stageId + ".png"
+    )
+  );
+  const overlayImgSummon = await loadImage(
+    path.join(
+      __dirname,
+      "..",
+      "assets",
+      "creatures",
+      combatAlert === "Your summon was too slow!" || combatAlert === "Defeat!"
+        ? playerCreature.img.slice(0, -4) + "_hurt.png"
+        : playerCreature.img.slice(0, -4) + "_attack.png"
+    )
+  );
+  const overlayImgEnemy = await loadImage(
+    path.join(
+      __dirname,
+      "..",
+      "assets",
+      "creatures",
+      combatAlert === "Enemy was too slow!" || combatAlert === "Victory!"
+        ? enemyCreature.img.slice(0, -4) + "_hurt.png"
+        : enemyCreature.img.slice(0, -4) + "_attack.png"
+    )
+  );
+  const canvas = createCanvas(bg.width, bg.height);
+  const ctx = canvas.getContext("2d");
+  let buf;
+
+  ctx.drawImage(bg, 0, 0);
+  ctx.drawImage(overlayImgSummon, 113, 0);
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.drawImage(overlayImgEnemy, -339, 0);
+  ctx.restore();
+  buf = canvas.toBuffer();
+
+  return new AttachmentBuilder(buf, {
+    name: "stage.png",
+    description: combatAlert,
+  });
+};
+
+const createGameEmbed = (gameCanvas) => {
+  return new EmbedBuilder()
+    .setTitle(stages[stageId].name)
+    .setDescription(
+      "**Player**\nLevel: " +
+        (Math.sqrt(playerExperience) * 0.25).toFixed(2) +
+        "\nDrachmas: " +
+        drachmas +
+        "\n\n" +
+        "**Player " +
+        playerCreature.name +
+        "**\nHP: " +
+        playerCreatureHP +
+        " / " +
+        (playerCreature.hp + chosenRelic.hpMod) +
+        "\nMP: " +
+        playerCreatureMP +
+        " / " +
+        (playerCreature.mp + chosenRelic.mpMod) +
+        "\n\n**Enemy " +
+        enemyCreature.name +
+        "**\nHP: " +
+        enemyCreatureHP +
+        " / " +
+        enemyCreature.hp +
+        "\n\n*" +
+        combatAlert +
+        "*"
+    )
+    .setColor(combatAlert == "Victory!" ? "#3498DB" : "#000000")
+    .setImage("attachment://" + gameCanvas.name);
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("useskill")
     .setDescription("Attacks enemy or performs special")
+    .setDMPermission(false)
     .addSubcommand((subcommand) =>
       subcommand.setName("1").setDescription("Attacks enemy")
     )
@@ -362,6 +473,8 @@ module.exports = {
     const re = new RegExp("^.*" + userId + ".*$", "gm");
     const gameData = await loadGameData(gamesPath, re);
     let formatted;
+    let gameCanvas;
+    let gameEmbed;
 
     gameData ?? (await denyGameData(interaction));
 
@@ -380,28 +493,9 @@ module.exports = {
       );
     }
 
-    formatted = gameData.replace(
-      re,
-      userId +
-        "," +
-        playerExperience +
-        "," +
-        drachmas +
-        "," +
-        (playerCreature.id - 1) +
-        "," +
-        (chosenRelic.id - 1) +
-        "," +
-        playerCreatureHP +
-        "," +
-        playerCreatureMP +
-        "," +
-        stageId +
-        "," +
-        (enemyCreature.id - 1) +
-        "," +
-        enemyCreatureHP
-    );
+    formatted = replaceGameData(gameData, re, userId);
+    gameCanvas = await createGameCanvas();
+    gameEmbed = createGameEmbed(gameCanvas);
 
     fs.writeFile(gamesPath, formatted, "utf8", (err) => {
       try {
@@ -418,24 +512,9 @@ module.exports = {
 
         interaction
           .reply({
-            content:
-              "**Player " +
-              playerCreature.name +
-              "**\nHP: " +
-              playerCreatureHP +
-              "\nMP: " +
-              playerCreatureMP +
-              "\n\n**Enemy " +
-              enemyCreature.name +
-              "**\nHP: " +
-              enemyCreatureHP +
-              "\n\n*" +
-              combatAlert +
-              "*\n\nLevel: " +
-              (Math.sqrt(playerExperience) * 0.25).toFixed(2) +
-              "\nDrachmas: " +
-              drachmas,
-            ephemeral: true,
+            embeds: [gameEmbed],
+            ephemeral: combatAlert == "Victory!" ? false : true,
+            files: combatAlert === "Not enough MP!" ? [] : [gameCanvas],
           })
           .catch((err) => console.error(err));
       } catch (err) {

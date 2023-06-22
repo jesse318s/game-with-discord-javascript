@@ -1,6 +1,6 @@
 "use strict";
-const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
+const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
 const stages = require("../constants/stages");
 
@@ -8,6 +8,42 @@ const choices = stages.map((stage) => ({
   name: stage.name + " | Level " + stage.levelReq,
   value: stage.id,
 }));
+const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+
+const writeStageData = (data, re, gameInfo, interaction) => {
+  const formatted = data.replace(re, gameInfo.join(","));
+
+  fs.writeFile(gamesPath, formatted, "utf8", (err) => {
+    try {
+      if (err) {
+        console.log(err);
+        interaction
+          .reply({
+            content: "Something went wrong with your transaction.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      interaction
+        .reply({
+          content:
+            "You have chosen " + stages[gameInfo[7]].name + " as your stage.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    } catch (err) {
+      console.error(err);
+      interaction
+        .reply({
+          content: "Something went wrong with your transaction.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+};
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -23,12 +59,10 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
     const stageIndex = interaction.options.getInteger("name");
     let gameInfo;
-    let formatted;
 
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
@@ -74,40 +108,8 @@ module.exports = {
         gameInfo[5] = 0;
         gameInfo[6] = 0;
         gameInfo[7] = stageIndex;
-        formatted = data.replace(re, gameInfo.join(","));
 
-        fs.writeFile(gamesPath, formatted, "utf8", (err) => {
-          try {
-            if (err) {
-              console.log(err);
-              interaction
-                .reply({
-                  content: "Something went wrong.",
-                  ephemeral: true,
-                })
-                .catch((err) => console.error(err));
-              return;
-            }
-
-            interaction
-              .reply({
-                content:
-                  "You have chosen " +
-                  stages[stageIndex].name +
-                  " as your stage.",
-                ephemeral: true,
-              })
-              .catch((err) => console.error(err));
-          } catch (err) {
-            console.error(err);
-            interaction
-              .reply({
-                content: "Something went wrong.",
-                ephemeral: true,
-              })
-              .catch((err) => console.error(err));
-          }
-        });
+        writeStageData(data, re, gameInfo, interaction);
       } catch (err) {
         console.error(err);
         interaction

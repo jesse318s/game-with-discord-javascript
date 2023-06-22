@@ -41,6 +41,7 @@ const enemyCreaturesStage1 = [
   {
     id: 2,
     name: "Baby Dragon",
+    img: "small_dragon_creature.png",
     reward: 5,
     hp: 60,
     attack: 50,

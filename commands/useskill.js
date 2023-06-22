@@ -1,16 +1,17 @@
 "use strict";
+const path = require("path");
 const {
   SlashCommandBuilder,
   AttachmentBuilder,
   EmbedBuilder,
 } = require("discord.js");
-const path = require("path");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
 const relics = require("../constants/relics");
 const stages = require("../constants/stages");
 const { createCanvas, loadImage } = require("canvas");
 
+const gamesPath = path.relative(process.cwd(), "docs/games.txt");
 let playerExperience;
 let drachmas;
 let playerCreature;
@@ -24,20 +25,19 @@ let combatAlert;
 let counterRef;
 let mpRef;
 
-const loadGameData = (gamesPath, re) => {
+const loadGameData = (re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
         if (err) console.error(err);
-
-        let gameInfo;
 
         if (!re.test(data)) {
           resolve();
           return;
         }
 
-        gameInfo = data.match(re)[0].split(",");
+        const gameInfo = data.match(re)[0].split(",");
+
         playerExperience = parseInt(gameInfo[1]);
         drachmas = parseInt(gameInfo[2]);
         playerCreature = creatures[gameInfo[3]];
@@ -344,31 +344,6 @@ const attackEnemyOrHeal = (moveName, moveType) => {
   }
 };
 
-const replaceGameData = (gameData, re, userId) => {
-  return gameData.replace(
-    re,
-    userId +
-      "," +
-      playerExperience +
-      "," +
-      drachmas +
-      "," +
-      (playerCreature.id - 1) +
-      "," +
-      (chosenRelic.id - 1) +
-      "," +
-      playerCreatureHP +
-      "," +
-      playerCreatureMP +
-      "," +
-      stageId +
-      "," +
-      (enemyCreature.id - 1) +
-      "," +
-      enemyCreatureHP
-  );
-};
-
 const createGameCanvas = async () => {
   const bg = await loadImage(
     path.join(
@@ -403,17 +378,15 @@ const createGameCanvas = async () => {
   );
   const canvas = createCanvas(bg.width, bg.height);
   const ctx = canvas.getContext("2d");
-  let buf;
 
   ctx.drawImage(bg, 0, 0);
-  ctx.drawImage(overlayImgSummon, 113, 0);
+  ctx.drawImage(overlayImgSummon, 98, 0);
   ctx.save();
   ctx.scale(-1, 1);
-  ctx.drawImage(overlayImgEnemy, -339, 0);
+  ctx.drawImage(overlayImgEnemy, -354, 0);
   ctx.restore();
-  buf = canvas.toBuffer();
 
-  return new AttachmentBuilder(buf, {
+  return new AttachmentBuilder(canvas.toBuffer(), {
     name: "stage.png",
     description: combatAlert,
   });
@@ -452,6 +425,66 @@ const createGameEmbed = (gameCanvas) => {
     .setImage("attachment://" + gameCanvas.name);
 };
 
+const writeGameData = async (formatted, interaction) => {
+  const gameCanvas = await createGameCanvas();
+
+  fs.writeFile(gamesPath, formatted, "utf8", (err) => {
+    try {
+      if (err) {
+        console.error(err);
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      interaction
+        .reply({
+          embeds: [createGameEmbed(gameCanvas)],
+          ephemeral: combatAlert == "Victory!" ? false : true,
+          files: combatAlert === "Not enough MP!" ? [] : [gameCanvas],
+        })
+        .catch((err) => console.error(err));
+    } catch (err) {
+      console.error(err);
+      interaction
+        .reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+};
+
+const replaceGameData = (gameData, re, userId) => {
+  return gameData.replace(
+    re,
+    userId +
+      "," +
+      playerExperience +
+      "," +
+      drachmas +
+      "," +
+      (playerCreature.id - 1) +
+      "," +
+      (chosenRelic.id - 1) +
+      "," +
+      playerCreatureHP +
+      "," +
+      playerCreatureMP +
+      "," +
+      stageId +
+      "," +
+      (enemyCreature.id - 1) +
+      "," +
+      enemyCreatureHP
+  );
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("useskill")
@@ -468,13 +501,9 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
-    const gameData = await loadGameData(gamesPath, re);
-    let formatted;
-    let gameCanvas;
-    let gameEmbed;
+    const gameData = await loadGameData(re);
 
     gameData ?? (await denyGameData(interaction));
 
@@ -493,39 +522,6 @@ module.exports = {
       );
     }
 
-    formatted = replaceGameData(gameData, re, userId);
-    gameCanvas = await createGameCanvas();
-    gameEmbed = createGameEmbed(gameCanvas);
-
-    fs.writeFile(gamesPath, formatted, "utf8", (err) => {
-      try {
-        if (err) {
-          console.error(err);
-          interaction
-            .reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            })
-            .catch((err) => console.error(err));
-          return;
-        }
-
-        interaction
-          .reply({
-            embeds: [gameEmbed],
-            ephemeral: combatAlert == "Victory!" ? false : true,
-            files: combatAlert === "Not enough MP!" ? [] : [gameCanvas],
-          })
-          .catch((err) => console.error(err));
-      } catch (err) {
-        console.error(err);
-        interaction
-          .reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          })
-          .catch((err) => console.error(err));
-      }
-    });
+    await writeGameData(replaceGameData(gameData, re, userId), interaction);
   },
 };

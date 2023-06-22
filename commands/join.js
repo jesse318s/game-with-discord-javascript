@@ -1,9 +1,11 @@
 "use strict";
-const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
+const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
 
-const verifyGameData = (gamesPath, re) => {
+const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+
+const verifyGameData = (re) => {
   return new Promise((resolve) => {
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
@@ -20,6 +22,39 @@ const verifyGameData = (gamesPath, re) => {
   });
 };
 
+const appendGameData = (newLine, interaction) => {
+  fs.appendFile(gamesPath, newLine, "utf8", (err) => {
+    try {
+      if (err) {
+        console.log(err);
+        interaction
+          .reply({
+            content: "Something went wrong.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      interaction
+        .reply({
+          content:
+            'You joined the game! Use "/help" to list all available commands.',
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    } catch (err) {
+      console.error(err);
+      interaction
+        .reply({
+          content: "Something went wrong.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("join")
@@ -27,7 +62,6 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
     const newLine =
@@ -52,7 +86,7 @@ module.exports = {
       0 +
       "\r\n";
 
-    if (await verifyGameData(gamesPath, re)) {
+    if (await verifyGameData(re)) {
       interaction
         .reply({
           content: "You've already joined the game.",
@@ -62,35 +96,6 @@ module.exports = {
       return;
     }
 
-    fs.appendFile(gamesPath, newLine, "utf8", (err) => {
-      try {
-        if (err) {
-          console.log(err);
-          interaction
-            .reply({
-              content: "Something went wrong.",
-              ephemeral: true,
-            })
-            .catch((err) => console.error(err));
-          return;
-        }
-
-        interaction
-          .reply({
-            content:
-              'You joined the game! Use "/help" to list all available commands.',
-            ephemeral: true,
-          })
-          .catch((err) => console.error(err));
-      } catch (err) {
-        console.error(err);
-        interaction
-          .reply({
-            content: "Something went wrong.",
-            ephemeral: true,
-          })
-          .catch((err) => console.error(err));
-      }
-    });
+    appendGameData(newLine, interaction);
   },
 };

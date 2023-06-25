@@ -354,6 +354,8 @@ const createGameCanvas = async () => {
       "background" + stageId + ".png"
     )
   );
+  const canvas = createCanvas(bg.width, bg.height);
+  const ctx = canvas.getContext("2d");
   const overlayImgSummon = await loadImage(
     path.join(
       __dirname,
@@ -376,16 +378,32 @@ const createGameCanvas = async () => {
         : enemyCreature.img.slice(0, -4) + "_attack.png"
     )
   );
-  const canvas = createCanvas(bg.width, bg.height);
-  const ctx = canvas.getContext("2d");
 
   ctx.drawImage(bg, 0, 0);
-  ctx.drawImage(overlayImgSummon, 98, 0);
+  ctx.drawImage(overlayImgSummon, bg.width / 2 - overlayImgSummon.width, 0);
   ctx.save();
   ctx.scale(-1, 1);
-  ctx.drawImage(overlayImgEnemy, -354, 0);
+  ctx.drawImage(overlayImgEnemy, -bg.width / 2 - overlayImgSummon.width, 0);
   ctx.restore();
-
+  ctx.lineWidth = "20";
+  ctx.strokeStyle = "green";
+  ctx.beginPath();
+  ctx.lineTo(0, bg.height - ctx.lineWidth / 2);
+  ctx.lineTo(
+    (bg.width / 2) *
+      (playerCreatureHP / (playerCreature.hp + chosenRelic.hpMod)),
+    bg.height - ctx.lineWidth / 2
+  );
+  ctx.stroke();
+  ctx.strokeStyle = "red";
+  ctx.beginPath();
+  ctx.lineTo(bg.width, bg.height - ctx.lineWidth / 2);
+  ctx.lineTo(
+    bg.width / 2 +
+      (bg.width / 2 - (bg.width / 2) * (enemyCreatureHP / enemyCreature.hp)),
+    bg.height - ctx.lineWidth / 2
+  );
+  ctx.stroke();
   return new AttachmentBuilder(canvas.toBuffer(), {
     name: "stage.png",
     description: combatAlert,
@@ -393,6 +411,17 @@ const createGameCanvas = async () => {
 };
 
 const createGameEmbed = (gameCanvas) => {
+  let embedColor = "#000000";
+
+  if (playerCreatureMP === 0) embedColor = "#FEE75C";
+
+  if (playerCreatureHP < (playerCreature.hp + chosenRelic.hpMod) / 2)
+    embedColor = "#E67E22";
+
+  if (playerCreatureHP === 0) embedColor = "#ED4245";
+
+  if (enemyCreatureHP === 0) embedColor = "#3498DB";
+
   return new EmbedBuilder()
     .setTitle(stages[stageId].name)
     .setDescription(
@@ -421,7 +450,7 @@ const createGameEmbed = (gameCanvas) => {
         combatAlert +
         "*"
     )
-    .setColor(combatAlert == "Victory!" ? "#3498DB" : "#000000")
+    .setColor(embedColor)
     .setImage("attachment://" + gameCanvas.name);
 };
 
@@ -444,7 +473,7 @@ const writeGameData = async (formatted, interaction) => {
       interaction
         .reply({
           embeds: [createGameEmbed(gameCanvas)],
-          ephemeral: combatAlert == "Victory!" ? false : true,
+          ephemeral: combatAlert === "Victory!" ? false : true,
           files: combatAlert === "Not enough MP!" ? [] : [gameCanvas],
         })
         .catch((err) => console.error(err));

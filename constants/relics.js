@@ -2,6 +2,7 @@ const relics = [
   {
     id: 1,
     name: "Gust of Hermes",
+    img: "relic1.png",
     description:
       "Grants the user's summon +5 speed while relic is being used. (Infinite duration, and only one relic can be active at a time)",
     hpMod: 0,
@@ -17,6 +18,7 @@ const relics = [
   {
     id: 2,
     name: "Spark of Zeus",
+    img: "relic2.png",
     description:
       "Grants the user's summon +15 attack while relic is being used. (Infinite duration, and only one relic can be active at a time)",
     hpMod: 0,
@@ -32,6 +34,7 @@ const relics = [
   {
     id: 3,
     name: "Cup of Dionysus",
+    img: "relic3.png",
     description:
       "Grants the user's summon +25 MP regen while relic is being used. (Infinite duration, and only one relic can be active at a time)",
     hpMod: 0,

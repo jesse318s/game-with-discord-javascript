@@ -2,6 +2,7 @@ const enemyCreaturesHome = [
   {
     id: 1,
     name: "Demon",
+    img: "demon_creature.png",
     reward: 3,
     hp: 60,
     attack: 50,
@@ -13,6 +14,7 @@ const enemyCreaturesHome = [
   {
     id: 2,
     name: "Lizard",
+    img: "lizard_creature.png",
     reward: 3,
     hp: 110,
     attack: 30,
@@ -27,6 +29,7 @@ const enemyCreaturesStage1 = [
   {
     id: 1,
     name: "Medusa",
+    img: "medusa_creature.png",
     reward: 5,
     hp: 110,
     attack: 30,
@@ -38,6 +41,7 @@ const enemyCreaturesStage1 = [
   {
     id: 2,
     name: "Baby Dragon",
+    img: "small_dragon_creature.png",
     reward: 5,
     hp: 60,
     attack: 50,
@@ -52,6 +56,7 @@ const enemyCreaturesStage2 = [
   {
     id: 1,
     name: "Ice Golem",
+    img: "ice_golem_creature.png",
     reward: 10,
     hp: 110,
     attack: 50,
@@ -63,6 +68,7 @@ const enemyCreaturesStage2 = [
   {
     id: 2,
     name: "Nuclear Golem",
+    img: "nuke_golem_creature.png",
     reward: 10,
     hp: 60,
     attack: 70,
@@ -74,6 +80,7 @@ const enemyCreaturesStage2 = [
   {
     id: 3,
     name: "Quantum Golem",
+    img: "quantum_golem_creature.png",
     reward: 10,
     hp: 60,
     attack: 70,
@@ -88,6 +95,7 @@ const enemyCreaturesStage3 = [
   {
     id: 1,
     name: "Skeleton",
+    img: "skeleton_creature.png",
     reward: 12,
     hp: 125,
     attack: 50,
@@ -99,6 +107,7 @@ const enemyCreaturesStage3 = [
   {
     id: 2,
     name: "Skeleton",
+    img: "skeleton_creature_spear.png",
     reward: 12,
     hp: 100,
     attack: 50,
@@ -110,6 +119,7 @@ const enemyCreaturesStage3 = [
   {
     id: 3,
     name: "Skeleton",
+    img: "skeleton_creature_bow.png",
     reward: 12,
     hp: 100,
     attack: 40,

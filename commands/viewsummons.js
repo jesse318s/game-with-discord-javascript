@@ -10,7 +10,8 @@ const {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("viewsummons")
-    .setDescription("Displays available summons"),
+    .setDescription("Displays available summons")
+    .setDMPermission(false),
 
   async execute(interaction) {
     const pages = [];

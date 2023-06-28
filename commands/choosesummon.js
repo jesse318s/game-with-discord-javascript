@@ -1,6 +1,6 @@
 "use strict";
-const { SlashCommandBuilder } = require("discord.js");
 const path = require("path");
+const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
 const stages = require("../constants/stages");
@@ -9,11 +9,50 @@ const choices = creatures.map((creature) => ({
   name: creature.name,
   value: creature.id - 1,
 }));
+const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+
+const writeSummonData = (data, re, gameInfo, interaction) => {
+  const formatted = data.replace(re, gameInfo.join(","));
+
+  fs.writeFile(gamesPath, formatted, "utf8", (err) => {
+    try {
+      if (err) {
+        console.log(err);
+        interaction
+          .reply({
+            content: "Something went wrong with your transaction.",
+            ephemeral: true,
+          })
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      interaction
+        .reply({
+          content:
+            "You have chosen the " +
+            creatures[gameInfo[3]].name +
+            " as your summon.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    } catch (err) {
+      console.error(err);
+      interaction
+        .reply({
+          content: "Something went wrong with your transaction.",
+          ephemeral: true,
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+};
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("choosesummon")
     .setDescription("Chooses the player's summon (this costs drachmas)")
+    .setDMPermission(false)
     .addIntegerOption((option) =>
       option
         .setName("name")
@@ -23,12 +62,10 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
     const userId = interaction.member.user.id;
     const re = new RegExp("^.*" + userId + ".*$", "gm");
     const summonIndex = interaction.options.getInteger("name");
     let gameInfo;
-    let formatted;
 
     fs.readFile(gamesPath, "utf8", (err, data) => {
       try {
@@ -79,40 +116,7 @@ module.exports = {
         )
           gameInfo[7] = 0;
 
-        formatted = data.replace(re, gameInfo.join(","));
-
-        fs.writeFile(gamesPath, formatted, "utf8", (err) => {
-          try {
-            if (err) {
-              console.log(err);
-              interaction
-                .reply({
-                  content: "Something went wrong.",
-                  ephemeral: true,
-                })
-                .catch((err) => console.error(err));
-              return;
-            }
-
-            interaction
-              .reply({
-                content:
-                  "You have chosen the " +
-                  creatures[summonIndex].name +
-                  " as your summon.",
-                ephemeral: true,
-              })
-              .catch((err) => console.error(err));
-          } catch (err) {
-            console.error(err);
-            interaction
-              .reply({
-                content: "Something went wrong.",
-                ephemeral: true,
-              })
-              .catch((err) => console.error(err));
-          }
-        });
+        writeSummonData(data, re, gameInfo, interaction);
       } catch (err) {
         console.error(err);
         interaction

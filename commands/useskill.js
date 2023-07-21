@@ -4,6 +4,9 @@ const {
   SlashCommandBuilder,
   AttachmentBuilder,
   EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
 } = require("discord.js");
 const fs = require("fs");
 const creatures = require("../constants/creatures");
@@ -138,18 +141,13 @@ const receiveEnemyCounterAttack = (chancePlayer, moveName, moveType) => {
     if (!chanceEnemy && chancePlayer) combatAlert = "Enemy was too slow!";
 
     if (!chanceEnemy && !chancePlayer) {
-      if (moveName !== playerCreature.attackName) {
-        playerCreatureMP = mpRef;
-      }
-
+      playerCreatureMP = mpRef;
       counterRef += 1;
       attackEnemyOrHeal(moveName, moveType);
       return;
     }
 
-    if (moveName === playerCreature.attackName) {
-      regenMP();
-    }
+    if (moveName === playerCreature.attackName) regenMP();
 
     if (chanceEnemy && chancePlayer) combatAlert = "Both abilities succeeded.";
 
@@ -456,6 +454,18 @@ const createGameEmbed = (gameCanvas) => {
 
 const writeGameData = async (formatted, interaction) => {
   const gameCanvas = await createGameCanvas();
+  const attackButton = new ButtonBuilder()
+    .setCustomId("1")
+    .setLabel(playerCreature.attackName)
+    .setStyle(ButtonStyle.Success);
+  const special1Button = new ButtonBuilder()
+    .setCustomId("2")
+    .setLabel(playerCreature.specialName)
+    .setStyle(ButtonStyle.Primary);
+  const special2Button = new ButtonBuilder()
+    .setCustomId("3")
+    .setLabel(playerCreature.specialName2)
+    .setStyle(ButtonStyle.Primary);
 
   fs.writeFile(gamesPath, formatted, "utf8", (err) => {
     try {
@@ -473,8 +483,15 @@ const writeGameData = async (formatted, interaction) => {
       interaction
         .reply({
           embeds: [createGameEmbed(gameCanvas)],
-          ephemeral: combatAlert === "Victory!" ? false : true,
+          ephemeral: true,
           files: combatAlert === "Not enough MP!" ? [] : [gameCanvas],
+          components: [
+            new ActionRowBuilder().addComponents(
+              attackButton,
+              special1Button,
+              special2Button
+            ),
+          ],
         })
         .catch((err) => console.error(err));
     } catch (err) {
@@ -517,7 +534,9 @@ const replaceGameData = (gameData, re, userId) => {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("useskill")
-    .setDescription("Attacks enemy or performs special")
+    .setDescription(
+      "Attacks enemy or performs special (also begins a new battle if necessary)"
+    )
     .setDMPermission(false)
     .addSubcommand((subcommand) =>
       subcommand.setName("1").setDescription("Attacks enemy")
@@ -536,20 +555,26 @@ module.exports = {
 
     gameData ?? (await denyGameData(interaction));
 
-    if (interaction.options.getSubcommand() === "1") {
+    if (
+      interaction.options?.getSubcommand() === "1" ||
+      interaction.customId === "1"
+    )
       attackEnemyOrHeal(playerCreature.attackName, playerCreature.attackType);
-    }
 
-    if (interaction.options.getSubcommand() === "2") {
+    if (
+      interaction.options?.getSubcommand() === "2" ||
+      interaction.customId === "2"
+    )
       attackEnemyOrHeal(playerCreature.specialName, playerCreature.specialType);
-    }
 
-    if (interaction.options.getSubcommand() === "3") {
+    if (
+      interaction.options?.getSubcommand() === "3" ||
+      interaction.customId === "3"
+    )
       attackEnemyOrHeal(
         playerCreature.specialName2,
         playerCreature.specialType2
       );
-    }
 
     await writeGameData(replaceGameData(gameData, re, userId), interaction);
   },

@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@devraelfreeze/discordjs-pagination": "^2.7.4",
     "canvas": "^2.11.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",

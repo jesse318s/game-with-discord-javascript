@@ -1,11 +1,14 @@
 "use strict";
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const creatures = require("../constants/creatures");
 const {
-  pagination,
-  ButtonTypes,
-  ButtonStyles,
-} = require("@devraelfreeze/discordjs-pagination");
+  SlashCommandBuilder,
+  AttachmentBuilder,
+  EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+} = require("discord.js");
+const sharp = require("sharp");
+const creatures = require("../constants/creatures");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,50 +17,57 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    const pages = [];
-    let creature;
-    let embed;
-
-    for (let i = 0; i < creatures.length; i++) {
-      creature = creatures[i];
-      embed = new EmbedBuilder().setTitle(creature.name).setDescription(
+    const creature = interaction.customId
+      ? creatures[interaction.customId.match(/creature_(\d+)/)[1] - 1]
+      : creatures[0];
+    const img = await sharp("./assets/creatures/" + creature.img)
+      .resize(128, 128)
+      .toBuffer();
+    const attachment = new AttachmentBuilder(img, {
+      name: creature.img,
+      description: creature.name,
+    });
+    const embed = new EmbedBuilder()
+      .setTitle(creature.name)
+      .setDescription(
         `HP: ${creature.hp}
-            Attack: ${creature.attackName} (${creature.attack}, ${creature.attackType})
-            Speed: ${creature.speed}
-            Defense: ${creature.defense}
-            Critical: ${creature.critical}
-            MP: ${creature.mp}
-            MP regen: ${creature.mpRegen}
-            Special: ${creature.specialName} (${creature.special}, ${creature.specialType}, cost: ${creature.specialCost})
-            Special 2: ${creature.specialName2} (${creature.special2}, ${creature.specialType2}, cost: ${creature.specialCost2})` +
+        Attack: ${creature.attackName} (${creature.attack}, ${creature.attackType})
+        Speed: ${creature.speed}
+        Defense: ${creature.defense}
+        Critical: ${creature.critical}
+        MP: ${creature.mp}
+        MP regen: ${creature.mpRegen}
+        Special: ${creature.specialName} (${creature.special}, ${creature.specialType}, cost: ${creature.specialCost})
+        Special 2: ${creature.specialName2} (${creature.special2}, ${creature.specialType2}, cost: ${creature.specialCost2})` +
           "\n\n**Price:** " +
           creature.price +
           " XP"
-      );
-      pages.push(embed);
-    }
+      )
+      .setThumbnail("attachment://" + creature.img);
+    const previousButton = new ButtonBuilder()
+      .setCustomId(
+        creature.id === 1 ? "creature_1" : "creature_" + (creature.id - 1)
+      )
+      .setLabel("Previous")
+      .setStyle(ButtonStyle.Primary);
+    const nextButton = new ButtonBuilder()
+      .setCustomId(
+        creature.id === creatures.length
+          ? "creature_" + creatures.length
+          : "creature_" + (creature.id + 1)
+      )
+      .setLabel("Next")
+      .setStyle(ButtonStyle.Primary);
 
-    await pagination({
-      embeds: pages,
-      author: interaction.member.user,
-      interaction: interaction,
-      ephemeral: true,
-      time: 60000,
-      disableButtons: true,
-      fastSkip: true,
-      pageTravel: false,
-      buttons: [
-        {
-          type: ButtonTypes.previous,
-          label: "Previous Page",
-          style: ButtonStyles.Primary,
-        },
-        {
-          type: ButtonTypes.next,
-          label: "Next Page",
-          style: ButtonStyles.Success,
-        },
-      ],
-    });
+    interaction
+      .reply({
+        embeds: [embed],
+        ephemeral: true,
+        files: [attachment],
+        components: [
+          new ActionRowBuilder().addComponents(previousButton, nextButton),
+        ],
+      })
+      .catch((err) => console.error(err));
   },
 };

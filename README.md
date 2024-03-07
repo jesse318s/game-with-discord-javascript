@@ -1,3 +1,3 @@
-# game-bot-discord-app
+# game-with-discord-javascript
 
-Game bot for playing a game in Discord
+Bot for playing a game in Discord

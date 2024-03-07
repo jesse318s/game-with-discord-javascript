@@ -17,6 +17,7 @@ const commandFiles = fs
   .readdirSync(commandsPath)
   .filter((file) => file.endsWith(".js"));
 let filePath;
+let command;
 
 // initialize client commands as new collection
 client.commands = new Collection();
@@ -27,8 +28,7 @@ client.on("ready", () => console.log(`logged in as ${client.user.tag}`));
 // command handling
 for (const file of commandFiles) {
   filePath = path.join(commandsPath, file);
-
-  const command = require(filePath);
+  command = require(filePath);
 
   if ("data" in command && "execute" in command) {
     client.commands.set(command.data.name, command);
@@ -41,9 +41,19 @@ for (const file of commandFiles) {
 
 // event handling
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  if (!interaction.isChatInputCommand() && !interaction.isButton()) return;
 
-  const command = interaction.client.commands.get(interaction.commandName);
+  if (interaction.isChatInputCommand())
+    command = interaction.client.commands.get(interaction.commandName);
+
+  if (String(interaction.customId).match(/^\d+$/))
+    command = interaction.client.commands.get("useskill");
+
+  if (String(interaction.customId).match(/relic/))
+    command = interaction.client.commands.get("viewrelics");
+
+  if (String(interaction.customId).match(/creature/))
+    command = interaction.client.commands.get("viewsummons");
 
   if (!command) {
     console.error(`No command matching ${interaction.commandName} was found.`);

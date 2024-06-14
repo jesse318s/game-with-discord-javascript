@@ -103,7 +103,7 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+    const gamesPath = path.relative(process.cwd(), "data/games.txt");
     const re = new RegExp("^.*" + interaction.member.user.id + ".*$", "gm");
     const gameInfo = await loadGameInfo(gamesPath, re);
     const imgFiles = [];

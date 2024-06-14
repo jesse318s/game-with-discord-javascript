@@ -3,7 +3,7 @@ const path = require("path");
 const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
 
-const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+const gamesPath = path.relative(process.cwd(), "data/games.txt");
 
 const verifyGameData = (re) => {
   return new Promise((resolve) => {

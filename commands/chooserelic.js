@@ -8,7 +8,7 @@ const choices = relics.map((relic) => ({
   name: relic.name,
   value: relic.id - 1,
 }));
-const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+const gamesPath = path.relative(process.cwd(), "data/games.txt");
 
 const writeRelicData = (data, re, gameInfo, interaction) => {
   const formatted = data.replace(re, gameInfo.join(","));

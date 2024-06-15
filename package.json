@@ -9,9 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@img/sharp-win32-x64": "^0.33.4",
     "canvas": "^2.11.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
-    "sharp": "^0.32.1"
+    "sharp": "^0.33.4"
   }
 }

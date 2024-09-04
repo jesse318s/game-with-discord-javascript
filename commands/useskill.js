@@ -14,7 +14,7 @@ const relics = require("../constants/relics");
 const stages = require("../constants/stages");
 const { createCanvas, loadImage } = require("canvas");
 
-const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+const gamesPath = path.relative(process.cwd(), "data/games.txt");
 let playerExperience;
 let drachmas;
 let playerCreature;

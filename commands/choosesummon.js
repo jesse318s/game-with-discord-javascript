@@ -9,7 +9,7 @@ const choices = creatures.map((creature) => ({
   name: creature.name,
   value: creature.id - 1,
 }));
-const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+const gamesPath = path.relative(process.cwd(), "data/games.txt");
 
 const writeSummonData = (data, re, gameInfo, interaction) => {
   const formatted = data.replace(re, gameInfo.join(","));

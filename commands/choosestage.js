@@ -8,7 +8,7 @@ const choices = stages.map((stage) => ({
   name: stage.name + " | Level " + stage.levelReq,
   value: stage.id,
 }));
-const gamesPath = path.relative(process.cwd(), "docs/games.txt");
+const gamesPath = path.relative(process.cwd(), "data/games.txt");
 
 const writeStageData = (data, re, gameInfo, interaction) => {
   const formatted = data.replace(re, gameInfo.join(","));
